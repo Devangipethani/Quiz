@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive JavaScript Quiz</title>
+  <style>
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .quiz-container {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    text-align: center;
+  }
+  
+  h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  
+  button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  #choices-container {
+    margin-bottom: 20px;
+  }
+  
+  .choice {
+    background-color: #f1f1f1;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .choice:hover {
+    background-color: #ddd;
+  }
+  
+  .choice.selected {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  #feedback-container {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .correct {
+    color: #28a745;
+  }
+  
+  .incorrect {
+    color: #dc3545;
+  }
+  
+  #score-container {
+    margin-top: 20px;
+    font-size: 22px;
+    font-weight: bold;
+    color: #007bff;
+  }
+  
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <h1>JavaScript Quiz</h1>
+    
+    <div id="question-container"></div>
+    
+    <div id="choices-container"></div>
+
+    <button id="submit-btn" onclick="submitAnswer()">Submit Answer</button>
+
+    <div id="feedback-container"></div>
+
+    <button id="next-btn" onclick="nextQuestion()" disabled>Next Question</button>
+
+    <div id="score-container"></div>
+  </div>
+
+  <script>
+    const questions = [
+    {
+      question: "Inside which HTML element do we put the JavaScript? ",
+      choices: ["A.<javascript>", "B.<js>", "C.<src>", "D.<script>"],
+      answer: "D.<script>"
+    },
+    {
+      question: "Where is the correct place to insert a JavaScript?",
+      choices: ["A.Both the head section and the body section are correct", "B.The head section", "C.The body section", "None of the above"],
+      answer: "A.Both the head section and the body section are correct"
+    },
+    {
+      question: "Which company developed JavaScript?",
+      choices: ["A.Microsoft", "B.Sun Microsystems", "C.Netscape", "D.Google"],
+      answer: "C.Netscape"
+    },
+    {
+      question: "What does DOM stand for in JavaScript?",
+      choices: ["A.Document Object Model", "B.Data Object Model", "C.Domain Object Model", "D.Direct Object Model"],
+      answer: "A.Document Object Model"
+    },
+    {
+      question: "Which of these is a JavaScript framework?",
+      choices: ["A.React", "B.Laravel", "C.Django", "D.Spring"],
+      answer: "A.React"
+    },
+    {
+        question: "When an operator’s value is NULL, the typeof returned by the unary operator is : ",
+        choices: ["A.Boolean", "B.Undefine", "C.Object", "D.Integer"],
+        answer: "C.Object"
+    },
+    {
+        question: "Which of the following represents loops in javascript?",
+        choices: ["A.for", "B.while", "C.forEach", "D.All of the above"],
+        answer: "D.All of the above"
+    },
+    {
+        question: "What is JavaScript?",
+        choices: ["A.JavaScript is a scripting language used to make the website interactive", "B.JavaScript is an assembly language used to make the website interactive", "C.JavaScript is a compiled language used to make the website interactive", "D.None of the mentioned"],
+        answer: "A.JavaScript is a scripting language used to make the website interactive"
+    },
+    {
+        question:"What will be the output of the following code snippet? print(typeof(NaN));",
+        choices:["A.Object","B.Number","C.String","D.None of the above"],
+        answer:"B.Number"
+    },
+    {
+        question:"What will be the output of the following code snippet? var a = true + true + true * 3; print(a)",
+        choices:["A.3","B.0","C.Error","D.5"],
+        answer:"D.5"
+    }
+  ];
+  
+  let currentQuestionIndex = 0;
+  let score = 0;
+  let selectedAnswer = null;
+  
+  function loadQuestion() {
+    const question = questions[currentQuestionIndex];
+    document.getElementById("question-container").innerText = question.question;
+    
+    const choicesContainer = document.getElementById("choices-container");
+    choicesContainer.innerHTML = ""; 
+  
+    question.choices.forEach(choice => {
+      const choiceElement = document.createElement("div");
+      choiceElement.classList.add("choice");
+      choiceElement.innerText = choice;
+      choiceElement.addEventListener("click", () => selectAnswer(choice));
+      choicesContainer.appendChild(choiceElement);
+    });
+  
+    document.getElementById("submit-btn").disabled = false;
+    document.getElementById("next-btn").disabled = true;
+    document.getElementById("feedback-container").innerText = "";
+  }
+  
+  function selectAnswer(choice) {
+    const choices = document.querySelectorAll(".choice");
+    choices.forEach(choiceElement => {
+      choiceElement.classList.remove("selected");
+    });
+    selectedAnswer = choice;
+    event.target.classList.add("selected");
+  }
+  
+  function submitAnswer() {
+    if (selectedAnswer === questions[currentQuestionIndex].answer) {
+      score++;
+      showFeedback(true);
+    } else {
+      showFeedback(false);
+    }
+    document.getElementById("submit-btn").disabled = true;
+    document.getElementById("next-btn").disabled = false;
+  }
+  
+  function showFeedback(isCorrect) {
+    const feedbackContainer = document.getElementById("feedback-container");
+    if (isCorrect) {
+      feedbackContainer.innerHTML = `<span class="correct">Correct!</span>`;
+    } else {
+      feedbackContainer.innerHTML = `<span class="incorrect">Incorrect! The correct answer was: ${questions[currentQuestionIndex].answer}</span>`;
+    }
+  }
+  
+  function nextQuestion() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+      loadQuestion();
+    } else {
+      showFinalScore();
+    }
+  }
+  
+  function showFinalScore() {
+    const scoreContainer = document.getElementById("score-container");
+    scoreContainer.innerHTML = `<h2>Your Final Score: ${score}/${questions.length}</h2>`;
+    document.getElementById("next-btn").style.display = "none"; 
+  }
+  
+  loadQuestion();
+  
+  </script>
+</body>
+</html>
